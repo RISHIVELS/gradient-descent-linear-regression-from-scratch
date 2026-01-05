@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 class LinearRegressionGradientDescent:
     # Initialised the parameters
@@ -12,11 +13,20 @@ class LinearRegressionGradientDescent:
         self.loss_history = []
 
     def __str__(self):
-        return f"Beta0 : {self.beta0}, Beta1 : {self.beta1} {self.beta0_history} hello"
+        return f"Beta0 : {self.beta0}, Beta1 : {self.beta1} {self.beta0_history}"
 
     # compute the beta0 and beta1 values
-    def fit (self,x,y, alpha=0.001, epochs=1000, tol=1e-6):
-        
+    def fit (self,x,y, alpha=1e-4, epochs=10000, tol=1e-6):
+        if alpha <= 0:
+            raise ValueError("alpha must be positive")
+
+        x = np.asarray(x, dtype=float)
+        y = np.asarray(y, dtype=float)
+
+        if x.shape != y.shape:
+            raise ValueError("x and y must have the same shape")
+
+
         n = len(x)
 
         # reset histories for each fit
@@ -67,34 +77,43 @@ class LinearRegressionGradientDescent:
     # Metrics
     # Mean square Error
     def mean_square_error(self,y_true,y_pred):
-        if (len(y_true) != len(y_pred)):
+        y_true = np.asarray(y_true, dtype=float)
+        y_pred = np.asarray(y_pred, dtype=float)
+        if y_true.shape != y_pred.shape:
             raise Exception("The size of y_pred and y_true does not match!!!")
         self.n = len(y_true)
-        self.mse = 1/self.n * sum((y_true - y_pred)**2)
+        self.mse = float((1/self.n) * np.sum((y_true - y_pred)**2))
         return self.mse
         
     # Mean absolute error
     def mean_absolute_error(self,y_true,y_pred):
-        if (len(y_true) != len(y_pred)):
+        y_true = np.asarray(y_true, dtype=float)
+        y_pred = np.asarray(y_pred, dtype=float)
+        if y_true.shape != y_pred.shape:
             raise Exception("The size of y_pred and y_true does not match!!!")
         self.n = len(y_true)
-        self.mae = 1/self.n * sum(abs(y_true - y_pred))
+        self.mae = float((1/self.n) * np.sum(np.abs(y_true - y_pred)))
         return self.mae
 
     # Root mean square error
     def rootmean_square_error(self,y_true,y_pred):
-        self.y_true = y_true
-        if (len(y_true) != len(y_pred)):
+        y_true = np.asarray(y_true, dtype=float)
+        y_pred = np.asarray(y_pred, dtype=float)
+        if y_true.shape != y_pred.shape:
             raise Exception("The size of y_pred and y_true does not match!!!")
         self.n = len(y_true)
-        self.rmse = math.sqrt(sum((y_true - y_pred)**2)/self.n)
+        self.rmse = float(math.sqrt(np.sum((y_true - y_pred)**2)/self.n))
         return self.rmse
 
     def r2_score (self,y_true,y_pred):
-        if (len(y_true) != len(y_pred)):
+        y_true = np.asarray(y_true, dtype=float)
+        y_pred = np.asarray(y_pred, dtype=float)
+        if y_true.shape != y_pred.shape:
             raise Exception("The size of y_pred and y_true does not match!!!")
-        self.numerator = sum((y_true - y_pred)**2)
-        self.denomerator = sum((y_true - y_true.mean())**2)
+        self.numerator = float(np.sum((y_true - y_pred)**2))
+        self.denomerator = float(np.sum((y_true - y_true.mean())**2))
+        if self.denomerator == 0:
+            raise ZeroDivisionError("y_true has zero variance; R2 is undefined")
         self.r2 = 1 - (self.numerator/self.denomerator)
         return self.r2
 
